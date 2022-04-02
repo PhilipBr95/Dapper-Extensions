@@ -258,7 +258,25 @@ namespace DapperExtensions.Mapper
             return this;
         }
 
+        private Func<object, object> _getValueConverter;
+
+        public MemberMap SetGetValueConverter(Func<object, object> valueConverter)
+        {
+            _getValueConverter = valueConverter; 
+            return this;
+        }
+
         public object GetValue(object obj)
+        {
+            var value = InternalGetValue(obj);
+
+            if (_getValueConverter == null)
+                return value;
+
+            return _getValueConverter(value);
+        }
+
+        internal object InternalGetValue(object obj)
         {
             if (MemberInfo is FieldInfo info)
             {
