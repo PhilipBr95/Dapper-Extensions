@@ -29,6 +29,21 @@ namespace DapperExtensions.Mapper
         IMemberMap ParentProperty { get; }
         object GetValue(object obj);
         void SetValue(object obj, object value);
+
+        /// <summary>
+        /// Set the function to convert the value when writing to the DB
+        /// </summary>
+        /// <param name="valueConverter"></param>
+        /// <returns></returns>
+        MemberMap SetValueConverter(Func<object, object> valueConverter);
+
+        /// <summary>
+        /// Set the function to convert the value when reading from the DB
+        /// </summary>
+        /// <param name="valueConverter"></param>
+        /// <returns></returns>
+        MemberMap GetValueConverter(Func<object, object> valueConverter);
+
         Type MemberType { get; }
         bool UseEnumDescription { get; }
     }
@@ -260,9 +275,15 @@ namespace DapperExtensions.Mapper
 
         private Func<object, object> _getValueConverter;
 
-        public MemberMap SetGetValueConverter(Func<object, object> valueConverter)
+        public MemberMap GetValueConverter(Func<object, object> valueConverter)
         {
             _getValueConverter = valueConverter; 
+            return this;
+        }
+
+        public MemberMap SetValueConverter(Func<object, object> valueConverter)
+        {
+            Slapper.AutoMapper.Configuration.AddTypeConverter(new SlapperTypeConvertions.FunctionTypeConverter($"{this.ClassMapper.EntityType.FullName}.{this.Name}", valueConverter));
             return this;
         }
 
